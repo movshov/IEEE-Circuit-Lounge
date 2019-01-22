@@ -18,36 +18,44 @@ menu that cannot be altered.
 
 
 AUTO SAVED RECORDS:
-    Once the program is shut-down the program automatically records the list
-    of students that signed_in and saves that list of records into a text file
-    of the current month, day, and year. An example would look like so ,
-        EX: "December 2, 2018.txt".
-    The file can be located in the directory "SavedRecords".
+    Once the program is shut-down, it will automatically record the list
+    of students that signed_in and saves that list of records into a comma seperated
+    value (CSV) file of the current month, day, and year. An example would look like so ,
+        EX: "December 2, 2018.csv".
     The format of the file is as follows:
 
-    Name -> Date : Class : Sign_In_Time
+    Name, Date, Class, Sign_In_Time
 
-    The program will automatically record the list of students to the text file daily at 4:00 PM.
-    That day's records can be located in a directory called "SavedRecords". If a crash/shutdown
-    has happened before the program reaches 4:00 PM because of the batter installed in the Laptop
-    it should always reach 4:00 PM. In the case where the program is forcefully closed the program
-    will save any students currently on the list as the current month, date, and year.txt.
+    In the case where the program is forcefully closed the program will regardlessly save the list
+    of student records to the CSV file. Additionally, the program will automatically record the list of students
+    to the CSV file daily at 4:00 PM. The program checks every 5 minutes if it is equal to or past 4PM
+    and if so saves the list of students to the CSV file.
+
+    If a crash/shutdown is to happen then the program will again autosave the list of students to
+    the CSV file. Should the power go out we can assume because of the laptops battery the list of
+    students should still be saved automatically or a tutor can manually close the program to save.
+
+    In the previous case of a crash/shutdown the program will append the list of student records to
+    the CSV file if it already exists. Otherwise, it will generate the CSV file and record the list.
+
 
 
 Download/Build Instructions:
 
 you can download the latest stable release at:
 
-https://github.com/movshov/
+https://github.com/movshov/IEEE-Circuit-Lounge
 
 BUILD INSTRUCTIONS:
     Some modifications will need to be made for the program to work with your own directories.
 
-    In mainwindow.h on line 19 you will need to specify the file path for your "Access.txt" file.
-        Ex: const QString ACCESS_FILE = "D:/QT5/Projects/Lab_Login/Access.txt";
+    In mainwindow.h on line 19 you will need to specify the file path for your "Database.txt" file.
+        PC Ex: const QString ACCESS_FILE = "D:/QT5/Projects/Lab_Login/Access.txt";
+        Mac EX: const QString RECORDS_FILE = "/Users/bar/Desktop/IEEE-Circuit-Lounge/Database.txt";
 
     In mainwindow.h on line 20 you will need to specify the file path for your directory "SavedRecords".
-        EX: const QString LOG_DIR = "D:/QT5/Projects/Lab_Login/SavedRecords/";
+        PC EX: const QString LOG_DIR = "D:/QT5/Projects/Lab_Login/SavedRecords/";
+        Mac EX: const QString LOG_DIR = "/Users/bar/Desktop/IEEE-Circuit-Lounge/SavedRecords/";
 
 This application was written in C++ using the Qt5 frameworks. Make sure you have the
 required libraries before building. If running on Debian or a Debian derivative,
