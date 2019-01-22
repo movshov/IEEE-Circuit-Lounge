@@ -369,7 +369,8 @@ MainWindow::MainWindow(){
 
     setWindowTitle("IEEE Tutoring");
     resize(XRES,YRES);  //resize to default x and y res.
-    showFullScreen();   //sets to full screen mode.
+  //  showFullScreen();   //Full Screen mode for Windows.
+    QTimer::singleShot(300, this, SLOT(showFullScreen())); //Full Screen mode for MAC.
 
 
 }
@@ -673,15 +674,15 @@ void MainWindow::hideConfirm(){
 void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
-  theList->move(450, 100);
-  theList->resize(870, 300);
+  theList->move(265, 100);
+  theList->resize(900, 300);
   theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Class" << "Sign-in Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
   theList->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->setColumnWidth(0, 300);
   theList->setColumnWidth(1, 300);
-  theList->setColumnWidth(2, 253);
+  theList->setColumnWidth(2, 300);
 }
 
 void MainWindow::updateTable() {

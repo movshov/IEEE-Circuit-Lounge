@@ -15,9 +15,11 @@
 
 
 using namespace std;
+//"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";     //PC Version.
+//Users/barmovshovich/Desktop/Desktop/College/CS/Open-Tech-Lab-Login-master/Access.txt";    //Mac Version.
 
-const QString RECORDS_FILE = "D:/QT5/Projects/Circuit_Lounge_Login/Database.txt";
-const QString LOG_DIR = "D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";
+const QString RECORDS_FILE = "/Users/barmovshovich/Desktop/Desktop/College/CS/IEEE-Circuit-Lounge-master/Database.txt";
+const QString LOG_DIR = "/Users/barmovshovich/Desktop/Desktop/College/CS/IEEE-Circuit-Lounge-master/SavedRecords/";
 
 class SignInWindow; //Window below table of current students in the room.
 class ClassWindow;  //Window of available Classes to get help with.
