@@ -13,7 +13,7 @@ class SignInWindow : public QWidget {
 
 public:
     QFont font, buttonFont;
-    QPushButton * loginButton, * noIdButton;
+    QPushButton * loginButton;
     QLineEdit * loginDialog;
     QLabel * logo1, * logo2, * title, * loginText;
 

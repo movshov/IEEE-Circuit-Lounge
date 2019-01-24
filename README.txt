@@ -1,3 +1,20 @@
+Skip to content
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ @movshov Sign out
+1
+0 0 movshov/IEEE-Circuit-Lounge
+ Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
+IEEE-Circuit-Lounge/README.txt
+ec460c4  a day ago
+@movshov movshov Update README.txt
+     
+80 lines (50 sloc)  3.21 KB
 
 An electronic sign-in application for the IEEE Circuit Lounge
 at Portland State University.
@@ -77,3 +94,16 @@ And then to run the program, simple issue:
     $./Lab_Login
 
 
+© 2019 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Press h to open a hovercard with more details.

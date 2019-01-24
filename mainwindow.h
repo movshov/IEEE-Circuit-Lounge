@@ -13,16 +13,14 @@
 #include <QDebug>
 #include <QFileInfo>
 
-
 using namespace std;
-//"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";     //PC Version.
-//Users/barmovshovich/Desktop/Desktop/College/CS/Open-Tech-Lab-Login-master/Access.txt";    //Mac Version.
 
-const QString RECORDS_FILE = "/Users/barmovshovich/Desktop/Desktop/College/CS/IEEE-Circuit-Lounge-master/Database.txt";
-const QString LOG_DIR = "/Users/barmovshovich/Desktop/Desktop/College/CS/IEEE-Circuit-Lounge-master/SavedRecords/";
+const QString RECORDS_FILE = "D:/QT5/Projects/Circuit_Lounge_Login/Database.txt";
+const QString LOG_DIR = "D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";
 
 class SignInWindow; //Window below table of current students in the room.
 class ClassWindow;  //Window of available Classes to get help with.
+class RegisterWindow;   //window for new registers to input data.
 class ConfirmWindow;    //Window to Confirm User input.
 
 struct Student {    //struct for Student Info.
@@ -51,7 +49,7 @@ struct Stack {
 };
 
 
-struct RegInfo {
+struct RegInfo {    //node for Hash Table and LLL.
     RegInfo(QString, QString);  //constructor.
     ~RegInfo(); //destructor.
     QString id;
@@ -62,12 +60,16 @@ struct RegInfo {
 struct Database {
     Database(); //constructor.
     ~Database();    //destructor.
-    void addStudent(QString, QString);
-    RegInfo * getStudent(QString);
+    void addStudent(QString, QString);  //add to Hash Table.
+    void saveNewStudent(QString, QString);  //add the LLL.
+    RegInfo * getStudent(QString);  //Getter for Hash Table.
+    void saveNewStudents(); //Append to Database
+    void DeleteList();  //delete LLL.
 
 private:
     int tableSize;
-    RegInfo ** table;
+    RegInfo ** table;   //Hash table of saved Students.
+    RegInfo * head; //LLL for newly added students.
     int hash(QString);
 };
 //Resolution.
@@ -87,6 +89,7 @@ class MainWindow : public QMainWindow{
     SignInWindow * signInWindow;
     ClassWindow * classWindow;
     ConfirmWindow * confirmWindow;
+    RegisterWindow * registerWindow;
     QTimer *timer;
 
     void showConfirm();
@@ -98,6 +101,10 @@ class MainWindow : public QMainWindow{
 
 private slots:
     void signInLogInButtonPressed();
+
+    void registerRegisterButtonPressed();
+    void registerCancelButtonPressed();
+    void registerIDDialogEntered();
 
     void classECE101ButtonPressed();
     void classECE102ButtonPressed();

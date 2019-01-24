@@ -31,18 +31,19 @@ SOURCES += \
         mainwindow.cpp \
     signinwindow.cpp \
     classwindow.cpp \
-    confirmwindow.cpp
+    confirmwindow.cpp \
+    registerwindow.cpp
 
 
 HEADERS += \
         mainwindow.h \
     signinwindow.h \
     classwindow.h \
-    confirmwindow.h
+    confirmwindow.h \
+    registerwindow.h
 
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -50,6 +51,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    Access.txt \
     README.txt \
     Database.txt

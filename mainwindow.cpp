@@ -3,6 +3,7 @@
 #include "signinwindow.h"
 #include "classwindow.h"
 #include "confirmwindow.h"
+#include "registerwindow.h"
 
 /**
  * @brief Student::Student
@@ -50,8 +51,9 @@ Stack::Stack(){
  *      Destructor for the class containing the list of students that have visited the room.
  */
 Stack::~Stack(){
-    saverecords();  //save the stack to SavedRecords if program is shut down.
-    if(head != nullptr) delete head;
+    saverecords();  //save the stack to SavedRecords if program is shut down. Will also
+    //call DeleteList() so the stack should be empty.
+    if(head != nullptr) delete head;    //Just in case but should never get hit.
 }
 
 /**
@@ -86,7 +88,8 @@ void Stack::DeleteList(){
         Student * temp = current->next;
         current->previous = nullptr;
         current->next = nullptr;
-        delete current;
+        delete current; //delete "head"
+        current = nullptr;  //set "head" to NULL.
         current = temp; //since head was already moved 1 forward.
     }
     head = nullptr;
@@ -199,6 +202,7 @@ RegInfo::~RegInfo() {
 *   to another data structure.
 */
 Database::Database(){   //Constructor.
+    this->head = nullptr;   //set LLL to NULL.
     tableSize = 21;
     table = new RegInfo *[tableSize];
     QString id, name;
@@ -231,8 +235,26 @@ Database::~Database(){
     for(int i = 0; i < tableSize; ++i){ //traverse hash table and delete
         if(table[i]) delete table[i];   //remove info.
     }
-}
+    saveNewStudents();  //Will call DeleteList after saving.
 
+}
+/**
+ * @brief Database::DeleteList
+ *      Delete LLL of all data.
+ */
+void Database::DeleteList(){
+    RegInfo * current = head;
+
+    while(current){
+        RegInfo * temp = current->next;
+        current->next = nullptr;
+        delete current; //delete "head"
+        current = nullptr;  //set "head" to NULL.
+        current = temp; //since head was already moved 1 forward.
+    }
+    if(head) delete head;
+    head = nullptr;
+}
 /**
 *   @brief Database::addStudent
 *       Adds a student to the hashtable database.
@@ -254,6 +276,24 @@ void Database::addStudent(QString id, QString name){
       current->next = new RegInfo(id, name);
     }
 }
+/**
+ * @brief Database::saveNewStudent
+ * @param id
+ *      The student's ODIN ID.
+ * @param name
+ *      The student's Name.
+ */
+void Database::saveNewStudent(QString id, QString name){
+    if(head == nullptr){ //no list exists yet.
+        head = new RegInfo(id,name);
+        return;
+    }
+    RegInfo * temp = new RegInfo(id,name);
+    temp->next = head;
+    head = temp;
+    return;
+}
+
 
 /**
  * @brief Database::getStudent
@@ -303,12 +343,40 @@ int Database::hash(QString id) {
 
   return sum % tableSize; //return the sum modulous the hash table size
 }
+/**
+ * @brief Database::saveNewStudents
+ *      Append to Database file of students that have already used the application before
+ *      to allow students to get help again without needed to re-register.
+ * @return
+ */
+void Database::saveNewStudents(){
+    QString fileName = RECORDS_FILE;
+    QFile data(fileName);
 
+    if(data.open(QFile::WriteOnly | QFile::Append )){
+        QTextStream out(&data); //converting everything to Text so QTextream will work.
+        //Don't use QDataStream, it gets garbage symbols into .txt file.
+        RegInfo * current = head;
+        QString comma = QString::fromUtf8(",");
+        while(current){
+            out << current->id;   //record student's ID.
+            out << comma;
+            out << current->name;   //record student's Name.
+            out << '\n';    //new line.
+            current = current->next;
+        }
+
+        data.flush();
+        data.close(); //close the opened file.
+        DeleteList(); //delete LLL.
+    }
+}
 
 MainWindow::MainWindow(){
     signInWindow = new SignInWindow(this);
     classWindow = new ClassWindow(this);
     confirmWindow = new ConfirmWindow(this);
+    registerWindow = new RegisterWindow(this);
 
     errorText = new QLabel(this);
     errorText->resize(400,40);
@@ -319,18 +387,23 @@ MainWindow::MainWindow(){
     theList = new QTableWidget(0, 3, this); //QTableWidget(row,col,parent).
     buildTable(numberOnList);
 
-    signInWindow->openWindow();
+
 
     timer = new QTimer(this);
     //timer->start(86400000); //This will only run once every 24 hours.
     //timer->start(300000);     //msec in 5 minutes.
-    //timer->start(60000);    //msec in 1 minute used for testing purposes.
-    timer->start(30000);    //msec in 30sec used for testing purposes.
+    timer->start(60000);    //msec in 1 minute used for testing purposes.
+    //timer->start(30000);    //msec in 30sec used for testing purposes.
+
+    signInWindow->openWindow();
 
     //setup signal and slot
     connect(timer, SIGNAL(timeout()),this, SLOT(checktime()));
     connect(signInWindow->loginButton, SIGNAL(clicked()), this, SLOT(signInLogInButtonPressed()));
     connect(signInWindow->loginDialog, SIGNAL(returnPressed()), this, SLOT(signInLogInButtonPressed()));
+
+    connect(registerWindow->cancelButton, SIGNAL(clicked()), this, SLOT(registerCancelButtonPressed()));
+    connect(registerWindow->regButton, SIGNAL(clicked()), this, SLOT(registerRegisterButtonPressed()));
 
     connect(classWindow->ECE101, SIGNAL(clicked()), this, SLOT(classECE101ButtonPressed()));
     connect(classWindow->ECE102, SIGNAL(clicked()), this, SLOT(classECE102ButtonPressed()));
@@ -369,8 +442,7 @@ MainWindow::MainWindow(){
 
     setWindowTitle("IEEE Tutoring");
     resize(XRES,YRES);  //resize to default x and y res.
-  //  showFullScreen();   //Full Screen mode for Windows.
-    QTimer::singleShot(300, this, SLOT(showFullScreen())); //Full Screen mode for MAC.
+    showFullScreen();   //sets to full screen mode.
 
 
 }
@@ -383,7 +455,7 @@ MainWindow::MainWindow(){
 void MainWindow::checktime(){
     if(!stack.head) return; //if there is no list.
     QString checkTime = QTime::currentTime().toString("hh"); //get the current time (00 to 23).
-    if (checkTime != "00") { //it is not 4PM.
+    if (checkTime != "21") { //it is not 9PM.
         return;
     }
     QString SaveFileName = QDate::currentDate().toString("MMMM dd, yyyy"); //get the current Month.
@@ -397,36 +469,69 @@ void MainWindow::checktime(){
  * Sign-in Window SLOTS
  */
 void MainWindow::signInLogInButtonPressed() {
-  if (signInWindow->loginDialog->cursorPosition() < 9) {
-    signInWindow->closeWindow();
-    signInWindow->openWindow();
-    errorText->move(1080, 525);
-    errorText->setText("Please enter a valid\n9-digit ODIN ID");
-    errorText->show();
-    return;
-  }
-  errorText->hide();
-  id = signInWindow->loginDialog->text();
+    if (signInWindow->loginDialog->cursorPosition() < 9) {
+       signInWindow->closeWindow();
+       signInWindow->openWindow();
+       errorText->move(1080, 525);
+       errorText->setText("Please enter a valid\n9-digit ODIN ID");
+       errorText->show();
+       return;
+     }
 
-    RegInfo * student = database.getStudent(id);
-    if (!student) { //if id is not in the database
-      signInWindow->closeWindow();
-      signInWindow->openWindow();
-      errorText->move(1080, 525);
-      errorText->setText("You do not have access to be in this room");
-      errorText->show();
-      return;
-    }  
-      name = student->name;
-      id = student->id;
-      signInTime = QTime::currentTime();    //get the current time.
-      date = QDate::currentDate();  //get the current date.
-      theList->hide();  //hide the stack.
-      signInWindow->closeWindow();  //close sign in window.
-      classWindow->OpenWindow();    //opne class window.
+     errorText->hide();
+     id = signInWindow->loginDialog->text();
 
+     signInTime = QTime::currentTime();    //get the current time.
+     date = QDate::currentDate();  //get the current date.
+
+     RegInfo * student = database.getStudent(id);
+
+     if (!student) { //if id is not in the database
+         theList->hide();
+         signInWindow->closeWindow();
+         updateTable();
+         registerWindow->openWindow(); //add new student to database.
+     }
+     else{
+         name = student->name;
+         id = student->id;
+         theList->hide();  //hide the stack.
+         signInWindow->closeWindow();  //close sign in window.
+         updateTable();
+         classWindow->OpenWindow();    //opne class window.
+     }
 }
 
+/*
+ * Register Window SLOTS
+ */
+void MainWindow::registerRegisterButtonPressed(){
+    if(registerWindow->nameDialog->cursorPosition() < 3){
+        registerWindow->nameDialog->clear();
+        registerWindow->nameDialog->setFocus();
+        errorText->move(910,525);
+        errorText->setText("Please enter a name with at leaast 3 characters");
+        errorText->show();
+        return;
+    }
+    name = registerWindow->nameDialog->text();
+    database.addStudent(id,name);   //add to Hash Table.
+    database.saveNewStudent(id,name);   //add to LLL to be recorded for future use.
+    errorText->hide();
+    registerWindow->closeWindow();
+    classWindow->OpenWindow();
+}
+
+void MainWindow::registerCancelButtonPressed(){
+    errorText->hide();
+    registerWindow->closeWindow();
+    theList->show();
+    signInWindow->openWindow();
+}
+
+void MainWindow::registerIDDialogEntered(){
+    registerWindow->nameDialog->setFocus();
+}
 void MainWindow::classECE101ButtonPressed(){
     Class = "ECE 101";
     classWindow->CloseWindow();
@@ -674,15 +779,15 @@ void MainWindow::hideConfirm(){
 void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
-  theList->move(265, 100);
-  theList->resize(900, 300);
+  theList->move(450, 100);
+  theList->resize(870, 300);
   theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Class" << "Sign-in Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
   theList->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->setColumnWidth(0, 300);
   theList->setColumnWidth(1, 300);
-  theList->setColumnWidth(2, 300);
+  theList->setColumnWidth(2, 253);
 }
 
 void MainWindow::updateTable() {
