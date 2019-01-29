@@ -77,18 +77,3 @@ In the top-level directory, issue the command:
 And then to run the program, simple issue:
 
     $./Lab_Login
-
-
-© 2019 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Press h to open a hovercard with more details.
