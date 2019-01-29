@@ -101,7 +101,7 @@ void Stack::DeleteList(){
 }
 /**
 * @brief Stack::saverecords
-*       Save the stack of sign in/out records to a .txt file.
+*       Save the stack of sign in/out records to a .csv file.
 * @param head
 *       Is a doubly linked list of student sing in/out records.
 */
@@ -246,9 +246,9 @@ void Database::DeleteList(){
 /**
 *   @brief Database::addStudent
 *       Adds a student to the hashtable database.
-*   @param
+*   @param id
 *       The student's ODIN ID.
-*   @param
+*   @param name
 *       The student's name.
 */
 void Database::addStudent(QString id, QString name){
@@ -266,6 +266,7 @@ void Database::addStudent(QString id, QString name){
 }
 /**
  * @brief Database::saveNewStudent
+ *      Saves new student's information to be uploaded to the database. 
  * @param id
  *      The student's ODIN ID.
  * @param name
@@ -379,8 +380,8 @@ MainWindow::MainWindow(){
 
     timer = new QTimer(this);
     //timer->start(86400000); //This will only run once every 24 hours.
-    //timer->start(300000);     //msec in 5 minutes.
-    timer->start(60000);    //msec in 1 minute used for testing purposes.
+    timer->start(300000);     //msec in 5 minutes.
+    //timer->start(60000);    //msec in 1 minute used for testing purposes.
     //timer->start(30000);    //msec in 30sec used for testing purposes.
 
     signInWindow->openWindow();
