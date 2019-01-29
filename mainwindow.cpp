@@ -378,9 +378,9 @@ MainWindow::MainWindow(){
 
     timer = new QTimer(this);
     //timer->start(86400000); //This will only run once every 24 hours.
-    //timer->start(300000);     //msec in 5 minutes.
+    timer->start(300000);     //msec in 5 minutes.
     //timer->start(60000);    //msec in 1 minute used for testing purposes.
-    timer->start(30000);    //msec in 30sec used for testing purposes.
+    //timer->start(30000);    //msec in 30sec used for testing purposes.
 
     signInWindow->openWindow();
 
