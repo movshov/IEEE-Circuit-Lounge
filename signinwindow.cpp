@@ -27,7 +27,6 @@ SignInWindow::SignInWindow(QWidget * parent) : QWidget(parent){
     loginDialog->setValidator(new QRegExpValidator(QRegExp("[0-9]{9}")));
     loginDialog->hide();
 
-    //logo = new QLabel("<img src='/var/tutor-data/psulogo.gif' />", parent);
     logo1 = new QLabel("<img src='D:/QT5/Projects/Circuit_Lounge_Login/PSU_Logo.jpg' />",parent);
     logo1->resize(700,500);
     logo1->move(200,550);

@@ -13,11 +13,11 @@
  * @param name
  *      The student's name.
  * @param class
- *      The name of the class that the student is needing help with. 
+ *      The name of the class the student needs tutoring in.
  * @param timeIn
- *      The time at which the student first checks in for help.
+ *      The time at which the student first checks in the room.
  * @param date
- *      The date at which the student uses the program. 
+ *      The date at which the student uses the program.
  */
 
 Student::Student(QString id, QString name, QString Class, QTime timeIn, QDate date){
@@ -61,11 +61,10 @@ Stack::~Stack(){
 
 /**
  *  @brief Stack::add
- *      Adds a student to the list of students that have checked in/out of the room.
+ *      Adds a student to the list of students getting help.
  *  @param toAdd
  *      The student node being added to the list.
  */
-//FUNCTION: Inserts new node at the head of the stack always.
 void Stack::add(Student * toAdd){
     if(head == nullptr){ //no list exists yet.
         head = toAdd;
@@ -164,11 +163,11 @@ void Stack::setWeekOfSaveFile(){    //need to use addDays QDate function to get 
 
 /**
  * @brief RegInfo::RegInfo
- *      Constructor for an instance of a Registered student/tutor
+ *      Constructor for an instance of a Registered student
  * @param id
- *      The id number of the student/tutor
+ *      The id number of the student
  * @param name
- *      The name of the student/tutor
+ *      The name of the student
  */
 RegInfo::RegInfo(QString id, QString name) {
   this->id = id;
@@ -178,7 +177,7 @@ RegInfo::RegInfo(QString id, QString name) {
 
 /**
  * @brief RegInfo::~RegInfo
- *      Destructor for a Registered student/tutor. Deletes the next node in the list.
+ *      Destructor for a Registered student. Deletes the next node in the list.
  */
 RegInfo::~RegInfo() {
   if (next) delete next;
@@ -186,7 +185,7 @@ RegInfo::~RegInfo() {
 
 /**
 *   @brief Database::Database
-*   Constructor for Register database. Reads in students from RegInfo.dat and adds students
+*   Constructor for Register database. Reads in students from Database.txt and adds students
 *   to another data structure.
 */
 Database::Database(){   //Constructor.
@@ -246,9 +245,9 @@ void Database::DeleteList(){
 /**
 *   @brief Database::addStudent
 *       Adds a student to the hashtable database.
-*   @param id
+*   @param
 *       The student's ODIN ID.
-*   @param name
+*   @param
 *       The student's name.
 */
 void Database::addStudent(QString id, QString name){
@@ -266,7 +265,6 @@ void Database::addStudent(QString id, QString name){
 }
 /**
  * @brief Database::saveNewStudent
- *      Saves new student's information to be uploaded to the database. 
  * @param id
  *      The student's ODIN ID.
  * @param name
@@ -380,9 +378,9 @@ MainWindow::MainWindow(){
 
     timer = new QTimer(this);
     //timer->start(86400000); //This will only run once every 24 hours.
-    timer->start(300000);     //msec in 5 minutes.
+    //timer->start(300000);     //msec in 5 minutes.
     //timer->start(60000);    //msec in 1 minute used for testing purposes.
-    //timer->start(30000);    //msec in 30sec used for testing purposes.
+    timer->start(30000);    //msec in 30sec used for testing purposes.
 
     signInWindow->openWindow();
 
@@ -443,12 +441,10 @@ MainWindow::MainWindow(){
 */
 
 void MainWindow::checktime(){
-    if(!stack.head) return; //if there is no list.
     QString checkTime = QTime::currentTime().toString("hh"); //get the current time (00 to 23).
-    if (checkTime != "21") { //it is not 9PM.
+    if (checkTime < 21) { //it is not 9PM.
         return;
     }
-    //QString SaveFileName = QDate::currentDate().toString("MMMM dd, yyyy"); //get the current Month.
     stack.saverecords();  //save the stack to the weekly save file.
     numberOnList = 0;   //after saving reset list #.
     updateTable();  //Table should be empty at this point.
@@ -522,6 +518,10 @@ void MainWindow::registerCancelButtonPressed(){
 void MainWindow::registerIDDialogEntered(){
     registerWindow->nameDialog->setFocus();
 }
+
+/*
+ * Class Window SLOTS
+ */
 void MainWindow::classECE101ButtonPressed(){
     Class = "ECE 101";
     classWindow->CloseWindow();
@@ -738,6 +738,9 @@ void MainWindow::classCancelButtonPressed(){
     signInWindow->openWindow();
 }
 
+/*
+ * Confirm Window SLOTS
+ */
 void MainWindow::confirmConfirmButtonPressed(){
      stack.add(new Student(id, name, Class, signInTime, date));  //add to the stack.
      ++numberOnList;
@@ -770,7 +773,6 @@ void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
   theList->move(450, 100);
-  //theList->resize(870, 300);
   theList->resize(970,300);
   theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Date" << "Class" << "Sign-in Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
