@@ -12,10 +12,12 @@
  *      The student's ODIN ID number.
  * @param name
  *      The student's name.
+ * @param class
+ *      The name of the class that the student is needing help with. 
  * @param timeIn
- *      The time at which the student first checks in the room.
- * @param timeOut
- *      The time at which the student checks out of the room.
+ *      The time at which the student first checks in for help.
+ * @param date
+ *      The date at which the student uses the program. 
  */
 
 Student::Student(QString id, QString name, QString Class, QTime timeIn, QDate date){
