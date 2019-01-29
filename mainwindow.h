@@ -15,6 +15,9 @@
 
 using namespace std;
 
+//"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";     //PC Version.
+//Users/bar/Desktop/Open-Tech-Lab-Login-master/Access.txt";    //Mac Version.
+
 const QString RECORDS_FILE = "D:/QT5/Projects/Circuit_Lounge_Login/Database.txt";
 const QString LOG_DIR = "D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/";
 
@@ -40,11 +43,11 @@ struct Stack {
     ~Stack();   //destructor.
     void add(Student*); //add a student to the stack. 
     void DeleteList();  //remove everyone from the list.
-    void saverecords();  //record the stack into a .txt file if the program is forcefully shut off.   
-    void dailysave(QString);  //if one month has passed save the stack into a .txt file named "that month + year.txt"
-    //EX: "December_2019.txt", "November_2019.txt"
+    void saverecords();  //record the stack into a .csv file.
+    void setWeekOfSaveFile();   //Set variable WeekOfSaveFile to the Sunday of that week.
     Student * head; //head pointer.
     Student * tail; //tail pointer.
+    QString WeekOfSaveFile;   //Latest "Week of ..." Save File Name.
 
 };
 

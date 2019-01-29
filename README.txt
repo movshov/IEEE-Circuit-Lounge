@@ -13,22 +13,20 @@ an orderly manner as well as get analytical data for the ECE department.
 The students need only to scan their PSU access badge or
 manually type in their 9-digit ODIN number into the program to sing_in.
 The date of when they sign_in is automatically recorded. The
-list of people who have used the program are shown in a scroll down
-menu that cannot be altered.
-
+list of people who have used the program are shown in a scroll down.
 
 AUTO SAVED RECORDS:
     Once the program is shut-down, it will automatically record the list
     of students that signed_in and saves that list of records into a comma seperated
-    value (CSV) file of the current month, day, and year. An example would look like so ,
-        EX: "December 2, 2018.csv".
+    value (CSV) file of the first Sunday of that week. An example would look like so ,
+        EX: "Week of January 27, 2019.csv".
     The format of the file is as follows:
 
     Name, Date, Class, Sign_In_Time
 
     In the case where the program is forcefully closed the program will regardlessly save the list
     of student records to the CSV file. Additionally, the program will automatically record the list of students
-    to the CSV file daily at 4:00 PM. The program checks every 5 minutes if it is equal to or past 4PM
+    to the CSV file daily at 9:00 PM. The program checks every 5 minutes if it is equal to or past 9PM
     and if so saves the list of students to the CSV file.
 
     If a crash/shutdown is to happen then the program will again autosave the list of students to
@@ -38,6 +36,10 @@ AUTO SAVED RECORDS:
     In the previous case of a crash/shutdown the program will append the list of student records to
     the CSV file if it already exists. Otherwise, it will generate the CSV file and record the list.
 
+WARNING:
+    If the CSV file that is being written to is left open on the computer as the program is being run 
+    it will not save to the file since it is currently in use. To avoid this error make sure that the current
+    Week's CSV file that is being written to is closed. 
 
 
 Download/Build Instructions:
@@ -75,3 +77,18 @@ In the top-level directory, issue the command:
 And then to run the program, simple issue:
 
     $./Lab_Login
+
+
+© 2019 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Press h to open a hovercard with more details.

@@ -44,6 +44,7 @@ Student::~Student(){
 Stack::Stack(){
     this->head = nullptr;
     this->tail = nullptr;
+    setWeekOfSaveFile();    //set WeekOfSaveFile.
 }
 
 /**
@@ -105,8 +106,7 @@ void Stack::DeleteList(){
 void Stack::saverecords(){
     if(!head) return;
     QString fileName = LOG_DIR; //"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/"
-    fileName += QDateTime::currentDateTime().toString("MMMM dd, yyyy"); //gets month and year.
-    fileName += ".csv"; //append .csv file extension to name
+    fileName += WeekOfSaveFile; //get last Sunday's File Name.
     QFile data(fileName);
     if(data.open(QFile::WriteOnly | QFile::Append)){
         QTextStream out(&data); //converting everything to Text so QTextream will work.
@@ -130,48 +130,34 @@ void Stack::saverecords(){
         }
         data.flush();
         data.close(); //close the opened file.
+        DeleteList();   //Clean the Stack.
     }
 }
 
 /**
-* @brief Stack::dailysave
-*       Saves the stack into a .txt file if it is past 4PM.
-* @param head
-*       Is a doubly linked list of sign In/Out records.
-*/
-void Stack::dailysave(QString SaveFileName){
-    QString fileName = LOG_DIR; //"D:/QT5/Projects/Lab_Login/SavedRecords/"
-    fileName += SaveFileName;   //given from monthlysave in MainWindow class.
-    fileName += ".csv"; //append .csv file extension to name
-    QFile data(fileName);
+ * @brief Stack::setWeekOfSaveFile
+ *      Used to calculate what that Week's Sunday date is and create a .csv
+ *      to save all of that weeks Student's that signed up for help.
+ */
+void Stack::setWeekOfSaveFile(){    //need to use addDays QDate function to get Sundays Date.
+    QString checkDate = QDate::currentDate().toString("ddd"); //get the current date as Mon-Sun format.
 
-    if(data.open(QFile::WriteOnly | QFile::Append )){
-        QTextStream out(&data); //converting everything to Text so QTextream will work.
-        //Don't use QDataStream, it gets garbage symbols into .txt file.
-        Student * current = head;
-       /*
-        QString empty = QString::fromUtf8(" ____ ");
-        QString delimiter1 = QString::fromUtf8(" -> ");
-        QString delimiter2 = QString::fromUtf8(" : ");
-        */
-        QString comma = QString::fromUtf8(",");
-        while(current){
-            out << current->id;   //record student's ID.
-            out << comma;
-            out << current->date.toString("MMMM dd yyyy");
-            out << comma;
-            out << current->Class;  //Class student needs help in
-            out << comma;
-            out << current->signInTime.toString("hh:mm a"); //record time student signed up.
-            out << '\n';    //new line.
-            current = current->next;
-        }
-
-        data.flush();
-        data.close(); //close the opened file.
-        DeleteList();   //Clean the Stack.
+    if(checkDate == "Sun") {  //it is sunday aka start of the week.
+        WeekOfSaveFile = "Week of ";
+        WeekOfSaveFile += QDate::currentDate().toString("MMMM dd, yyyy");
+        WeekOfSaveFile += ".csv";   //append .csv
+        return;
     }
-
+    else { //if its Mon-Sat figure out what that week's Sunday is.
+        WeekOfSaveFile = "Week of ";
+        WeekOfSaveFile += QDate::currentDate().toString("MMMM ");   //EX: "Week of December ".
+        QDate Today = QDate::currentDate(); //get Today's Date.
+        QDate Sunday = Today.addDays(-Today.dayOfWeek());   //get the previous Sunday's date.
+        WeekOfSaveFile += Sunday.toString("dd, ");  //Save previous Sunday's date.
+        WeekOfSaveFile += QDate::currentDate().toString("yyyy");  //get the current year.
+        WeekOfSaveFile += ".csv";   //append .csv
+        return;
+    }
 }
 
 /**
@@ -384,15 +370,15 @@ MainWindow::MainWindow(){
 
     //This is the table of students who have signed in.
     numberOnList = 0;
-    theList = new QTableWidget(0, 3, this); //QTableWidget(row,col,parent).
+    theList = new QTableWidget(0, 4, this); //QTableWidget(row,col,parent).
     buildTable(numberOnList);
 
 
 
     timer = new QTimer(this);
     //timer->start(86400000); //This will only run once every 24 hours.
-    timer->start(300000);     //msec in 5 minutes.
-    //timer->start(60000);    //msec in 1 minute used for testing purposes.
+    //timer->start(300000);     //msec in 5 minutes.
+    timer->start(60000);    //msec in 1 minute used for testing purposes.
     //timer->start(30000);    //msec in 30sec used for testing purposes.
 
     signInWindow->openWindow();
@@ -449,7 +435,8 @@ MainWindow::MainWindow(){
 //CheckMonth slots
 /**
 * @brief MainWindow::checktime
-*       Used to check to see if it's past 4PM. If so, then save the stack and close the application.
+*       Used to check to see if it's past 9PM. If so, then save the stack and close the application.
+*       This is mainly going to be used in case somebody forgets to shut off the Laptop.
 */
 
 void MainWindow::checktime(){
@@ -458,10 +445,10 @@ void MainWindow::checktime(){
     if (checkTime != "21") { //it is not 9PM.
         return;
     }
-    QString SaveFileName = QDate::currentDate().toString("MMMM dd, yyyy"); //get the current Month.
-    stack.dailysave(SaveFileName);
-    numberOnList = 0;   //after saveing reset list #.
-    updateTable();
+    //QString SaveFileName = QDate::currentDate().toString("MMMM dd, yyyy"); //get the current Month.
+    stack.saverecords();  //save the stack to the weekly save file.
+    numberOnList = 0;   //after saving reset list #.
+    updateTable();  //Table should be empty at this point.
     QCoreApplication::quit();   //quit the application.
     return; //will never get hit but just in case.
 }
@@ -780,14 +767,16 @@ void MainWindow::buildTable(int rows) {
   theList->removeRow(rows);
   theList->insertRow(rows);
   theList->move(450, 100);
-  theList->resize(870, 300);
-  theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Class" << "Sign-in Time");
+  //theList->resize(870, 300);
+  theList->resize(970,300);
+  theList->setHorizontalHeaderLabels(QStringList() << "Name" << "Date" << "Class" << "Sign-in Time");
   theList->setEditTriggers(QAbstractItemView::NoEditTriggers);
   theList->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
   theList->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-  theList->setColumnWidth(0, 300);
-  theList->setColumnWidth(1, 300);
-  theList->setColumnWidth(2, 253);
+  theList->setColumnWidth(0, 250);
+  theList->setColumnWidth(1, 250);
+  theList->setColumnWidth(2, 250);
+  theList->setColumnWidth(3, 203);
 }
 
 void MainWindow::updateTable() {
@@ -797,8 +786,9 @@ void MainWindow::updateTable() {
   int row = 0;
   while (current != nullptr) {
     theList->setItem(row, 0, new QTableWidgetItem(current->name));
-    theList->setItem(row, 1, new QTableWidgetItem(current->Class));
-    theList->setItem(row, 2, new QTableWidgetItem(current->signInTime.toString("hh:mm a")));
+    theList->setItem(row, 1, new QTableWidgetItem(current->date.toString("MMMM dd, yyyy")));
+    theList->setItem(row, 2, new QTableWidgetItem(current->Class));
+    theList->setItem(row, 3, new QTableWidgetItem(current->signInTime.toString("hh:mm a")));
     current = current->next;
     ++row;
   }
