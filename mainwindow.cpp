@@ -54,14 +54,17 @@ Stack::Stack(){
  *      Destructor for the class containing the list of students that have visited the room.
  */
 Stack::~Stack(){
-    saverecords();  //save the stack to SavedRecords if program is shut down. Will also
+    //saverecords();  //save the stack to SavedRecords if program is shut down. Will also
     //call DeleteList() so the stack should be empty.
-    if(head != nullptr) delete head;    //Just in case but should never get hit.
+    if(head != nullptr){
+        DeleteList();   //remove the entire DLL.
+    }
 }
 
 /**
  *  @brief Stack::add
  *      Adds a student to the list of students getting help.
+ *      New student's get added at the end of the DLL.
  *  @param toAdd
  *      The student node being added to the list.
  */
@@ -98,12 +101,14 @@ void Stack::DeleteList(){
     tail = nullptr;
 
 }
+
 /**
 * @brief Stack::saverecords
 *       Save the stack of sign in/out records to a .csv file.
 * @param head
 *       Is a doubly linked list of student sing in/out records.
 */
+/*
 void Stack::saverecords(){
     if(!head) return;
     QString fileName = LOG_DIR; //"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/"
@@ -113,10 +118,10 @@ void Stack::saverecords(){
         QTextStream out(&data); //converting everything to Text so QTextream will work.
         //Don't use QDataStream, it gets garbage symbols into .txt file.
         Student * current = head;
-        /*
-        QString delimiter1 = QString::fromUtf8(" -> ");
-        QString delimiter2 = QString::fromUtf8(" : ");
-        */
+
+        //QString delimiter1 = QString::fromUtf8(" -> ");
+        //QString delimiter2 = QString::fromUtf8(" : ");
+
         QString comma = QString::fromUtf8(",");
         while(current){
             out << current->id;   //record student's ID.
@@ -134,7 +139,39 @@ void Stack::saverecords(){
         DeleteList();   //Clean the Stack.
     }
 }
+*/
+/**
+ * @brief Stack::saveRecord
+ *      Save the currently signed up student's information to the "Week of ..." file.
+ *      We know that the newest student exists as Tail, so we use Tail's information.
+ */
+void Stack::saveRecord(){
+    if(!head) return;
+    QString fileName = LOG_DIR; //"D:/QT5/Projects/Circuit_Lounge_Login/SavedRecords/"
+    fileName += WeekOfSaveFile; //get last Sunday's File Name.
+    QFile data(fileName);
+    if(data.open(QFile::WriteOnly | QFile::Append)){
+        QTextStream out(&data); //converting everything to Text so QTextream will work.
+        //Don't use QDataStream, it gets garbage symbols into .txt file.
+        /*
+        QString delimiter1 = QString::fromUtf8(" -> ");
+        QString delimiter2 = QString::fromUtf8(" : ");
+        */
+        QString comma = QString::fromUtf8(",");
 
+            out << tail->id;   //record student's ID.
+            out << comma;
+            out << tail->date.toString("MMMM dd yyyy");
+            out << comma;
+            out << tail->Class;  //Class student needs help in
+            out << comma;
+            out << tail->signInTime.toString("hh:mm a"); //record time student signed up.
+            out << '\n';    //new line.
+
+        data.flush();
+        data.close(); //close the opened file.
+    }
+}
 /**
  * @brief Stack::setWeekOfSaveFile
  *      Used to calculate what that Week's Sunday date is and create a .csv
@@ -378,9 +415,9 @@ MainWindow::MainWindow(){
 
     timer = new QTimer(this);
     //timer->start(86400000); //This will only run once every 24 hours.
-    timer->start(300000);     //msec in 5 minutes.
+    //timer->start(300000);     //msec in 5 minutes.
     //timer->start(60000);    //msec in 1 minute used for testing purposes.
-    //timer->start(30000);    //msec in 30sec used for testing purposes.
+    timer->start(30000);    //msec in 30sec used for testing purposes.
 
     signInWindow->openWindow();
 
@@ -445,7 +482,7 @@ void MainWindow::checktime(){
     if (checkTime < 21) { //it is not 9PM.
         return;
     }
-    stack.saverecords();  //save the stack to the weekly save file.
+    //stack.saverecords();  //save the stack to the weekly save file.
     numberOnList = 0;   //after saving reset list #.
     updateTable();  //Table should be empty at this point.
     QCoreApplication::quit();   //quit the application.
@@ -745,6 +782,8 @@ void MainWindow::confirmConfirmButtonPressed(){
      stack.add(new Student(id, name, Class, signInTime, date));  //add to the stack.
      ++numberOnList;
      updateTable();
+     stack.setWeekOfSaveFile(); //Will make sure we are still on the same week.
+     stack.saveRecord();    //save the newly added Sign-in to the csv file.
      confirmWindow->closeWindow();
      hideConfirm();
      theList->show();

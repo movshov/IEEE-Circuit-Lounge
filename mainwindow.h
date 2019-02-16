@@ -43,7 +43,8 @@ struct Stack {
     ~Stack();   //destructor.
     void add(Student*); //add a student to the stack. 
     void DeleteList();  //remove everyone from the list.
-    void saverecords();  //record the stack into a .csv file.
+    //void saverecords();  //record the stack into a .csv file.
+    void saveRecord();  //Save newly signed up student's information.
     void setWeekOfSaveFile();   //Set variable WeekOfSaveFile to the Sunday of that week.
     Student * head; //head pointer.
     Student * tail; //tail pointer.
